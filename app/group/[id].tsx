@@ -7,13 +7,14 @@ import { useRoute } from "@react-navigation/native";
 import * as DocumentPicker from "expo-document-picker";
 import { useEffect, useState } from "react";
 import {
-    Alert,
-    Button,
-    FlatList,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Button,
+  FlatList,
+  Platform,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 type Task = {
@@ -37,6 +38,7 @@ export default function Group() {
   const [submissionText, setSubmissionText] = useState("");
   const [uploading, setUploading] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [showPicker, setShowPicker] = useState(false);
   const router = useRoute();
 
   const groupId = router?.params?.id;
@@ -259,21 +261,46 @@ export default function Group() {
             }
             className="bg-black text-white border border-white mb-2 p-2 rounded"
           />
-
-          <DateTimePicker
-            value={selectedDate}
-            mode="date"
-            display="default"
-            onChange={(event, date) => {
-              if (date) {
-                setSelectedDate(date);
-                setNewTask((prev) => ({
-                  ...prev,
-                  due_date: date.toISOString().split("T")[0],
-                }));
-              }
-            }}
-          />
+          {Platform.OS === "android" && (
+            <Button
+              title="Select Due Date"
+              onPress={() => setShowPicker(true)}
+            />
+          )}
+          {Platform.OS === "android" ? (
+            showPicker && (
+              <DateTimePicker
+                value={selectedDate}
+                mode="date"
+                display="default"
+                onChange={(event, date) => {
+                  if (date) {
+                    setShowPicker(false);
+                    setSelectedDate(date);
+                    setNewTask((prev) => ({
+                      ...prev,
+                      due_date: date.toISOString().split("T")[0],
+                    }));
+                  }
+                }}
+              />
+            )
+          ) : (
+            <DateTimePicker
+              value={selectedDate}
+              mode="date"
+              display="default"
+              onChange={(event, date) => {
+                if (date) {
+                  setSelectedDate(date);
+                  setNewTask((prev) => ({
+                    ...prev,
+                    due_date: date.toISOString().split("T")[0],
+                  }));
+                }
+              }}
+            />
+          )}
           <Button title="Create Task" onPress={handleCreateTask} />
         </View>
       )}

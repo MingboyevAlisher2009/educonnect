@@ -10,6 +10,7 @@ import {
   Alert,
   FlatList,
   Pressable,
+  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
@@ -217,7 +218,7 @@ export default function HomeScreen() {
   );
 
   return (
-    <View className="bg-white dark:bg-black">
+    <ScrollView className="bg-white dark:bg-black">
       <FlatList
         ListHeaderComponent={
           <View className="px-4 pt-4">
@@ -310,6 +311,6 @@ export default function HomeScreen() {
         onClose={() => setVisible(false)}
         onCreate={handleCreateGroup}
       />
-    </View>
+    </ScrollView>
   );
 }

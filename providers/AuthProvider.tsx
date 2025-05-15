@@ -15,6 +15,7 @@ type AuthContextType = {
   isAuthenticated: boolean;
   isLoading: boolean; // Add isLoading to the context
   setUser: (user: UserProfile | null) => void;
+  refreshUser: () => void;
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -22,6 +23,7 @@ const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   isLoading: false, // Initialize isLoading in context
   setUser: () => {},
+  refreshUser: () => {},
 });
 
 export const useAuth = () => {
@@ -55,6 +57,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error) {
       console.error("Error fetching profile:", error);
       return null;
+    }
+  };
+
+  const refreshUser = async () => {
+    try {
+      const { data, error } = await supabase.auth.getUser();
+      if (error) {
+        throw error;
+      }
+      setUser(data.user);
+    } catch (error) {
+      console.error("Error refreshing user:", error);
     }
   };
 
@@ -108,6 +122,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         isAuthenticated: !!user,
         isLoading,
         setUser,
+        refreshUser,
       }}
     >
       {children}

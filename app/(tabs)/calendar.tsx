@@ -1,9 +1,9 @@
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/providers/AuthProvider";
+import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import {
   FlatList,
-  Modal,
   Text,
   TouchableOpacity,
   useColorScheme,
@@ -16,6 +16,7 @@ type Task = {
   title: string;
   due_date: string;
   group_id: string;
+  group: Group;
   status?: "completed" | "locked" | "pending";
 };
 
@@ -26,7 +27,7 @@ type Group = {
 
 export default function CalendarScreen() {
   const scheme = useColorScheme();
-  const isDark = scheme === "dark";
+  const isDark = scheme === "light";
   const today = new Date().toISOString().split("T")[0];
 
   const { user } = useAuth();
@@ -61,7 +62,7 @@ export default function CalendarScreen() {
 
   const fetchTasks = async () => {
     try {
-      let query = supabase.from("tasks").select("*");
+      let query = supabase.from("tasks").select(`*, group:groups(id, name)`);
 
       if (user?.condidate_role === "teacher") {
         if (selectedGroupId) {
@@ -97,7 +98,6 @@ export default function CalendarScreen() {
       }
 
       const fetchedTasks = data;
-      console.log("Fetched Tasks:", fetchedTasks);
       setTasks(fetchedTasks);
 
       markDates(fetchedTasks);
@@ -139,12 +139,8 @@ export default function CalendarScreen() {
   );
 
   return (
-    <View className={`flex-1 px-4 pt-12 ${isDark ? "bg-black" : "bg-white"}`}>
-      <Text
-        className={`text-2xl font-semibold mb-4 ${
-          isDark ? "text-white" : "text-gray-900"
-        }`}
-      >
+    <View className={`flex-1 px-4 pt-12  bg-white`}>
+      <Text className={`text-2xl font-semibold mb-4 text-gray-900`}>
         Calendar
       </Text>
 
@@ -177,8 +173,8 @@ export default function CalendarScreen() {
           setModalVisible(true);
         }}
         theme={{
-          backgroundColor: isDark ? "#000000" : "#FFFFFF",
-          calendarBackground: isDark ? "#000000" : "#FFFFFF",
+          backgroundColor: "#FFFFFF",
+          calendarBackground: "#FFFFFF",
           textSectionTitleColor: "#9CA3AF",
           selectedDayBackgroundColor: "#3B82F6",
           selectedDayTextColor: "#FFFFFF",
@@ -186,7 +182,7 @@ export default function CalendarScreen() {
           dayTextColor: isDark ? "#E5E7EB" : "#111827",
           textDisabledColor: "#6B7280",
           arrowColor: "#3B82F6",
-          monthTextColor: isDark ? "#F3F4F6" : "#111827",
+          monthTextColor: "#111827",
           textDayFontWeight: "500",
           textMonthFontWeight: "bold",
           textDayHeaderFontWeight: "600",
@@ -196,54 +192,40 @@ export default function CalendarScreen() {
         }}
       />
 
-      <Modal
-        visible={modalVisible}
-        animationType="slide"
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View className="flex-1 bg-white dark:bg-black px-4 pt-12">
-          <Text className="text-xl font-bold mb-4 dark:text-white">
-            Tasks on {selectedDate}
-          </Text>
-
-          <FlatList
-            data={tasksForDate}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <View className="p-4 border-b border-gray-300">
-                <Text className="text-lg font-medium dark:text-white">
-                  {item.title}
-                </Text>
-                {user?.condidate_role === "student" && (
-                  <Text
-                    className={`text-sm ${
-                      item.status === "completed"
-                        ? "text-green-500"
-                        : item.status === "pending"
-                        ? "text-yellow-500"
-                        : "text-red-500"
-                    }`}
-                  >
-                    {item.status}
+      <View className="mt-10 flex-1">
+        <FlatList
+          data={tasksForDate}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View
+              key={item.id}
+              className="bg-white rounded-xl shadow p-4 mt-5 flex-row items-center justify-between"
+            >
+              <View className="flex-row items-center">
+                <View className="bg-blue-100 rounded-full p-4 mr-2">
+                  <Ionicons name="document-outline" size={24} color="#3b82f6" />
+                </View>
+                <View>
+                  <Text className="text-lg font-semibold text-gray-800">
+                    {item.group.name}
                   </Text>
-                )}
+                  <View className="flex-row items-center mt-1">
+                    <Text className="text-gray-500 ml-1 text-sm">
+                      {item.title}
+                    </Text>
+                  </View>
+                </View>
               </View>
-            )}
-            ListEmptyComponent={
-              <Text className="text-gray-500 dark:text-gray-400">
-                No tasks found.
-              </Text>
-            }
-          />
-
-          <TouchableOpacity
-            onPress={() => setModalVisible(false)}
-            className="mt-4 bg-blue-600 py-3 px-6 rounded-xl self-center"
-          >
-            <Text className="text-white text-center">Close</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
+            </View>
+          )}
+          ListEmptyComponent={
+            <Text className="text-gray-500 dark:text-gray-400">
+              No tasks found.
+            </Text>
+          }
+          contentContainerStyle={{ padding: 5, marginBottom: 10 }}
+        />
+      </View>
     </View>
   );
 }

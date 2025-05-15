@@ -1,18 +1,20 @@
 import InitialLayout from "@/components/initial_layout";
 import { AuthProvider } from "@/providers/AuthProvider";
-import { DarkTheme, ThemeProvider } from "@react-navigation/native";
+import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 
 import { SplashScreen } from "expo-router";
 import { useCallback } from "react";
+import { StatusBar } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import "../global.css";
 
 const myTheme = {
-  ...DarkTheme,
+  ...DefaultTheme,
   colors: {
-    ...DarkTheme.colors,
-    primary: "white",
-    card: "#101010",
+    ...DefaultTheme.colors,
+    primary: "black",
+    card: "#fff",
   },
 };
 
@@ -28,8 +30,16 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={myTheme}>
       <AuthProvider>
-        <InitialLayout />
+        <SafeAreaProvider>
+          <SafeAreaView
+            style={{ flex: 1, backgroundColor: "#fff" }}
+            onLayout={onLayoutRootView}
+          >
+            <InitialLayout />
+          </SafeAreaView>
+        </SafeAreaProvider>
       </AuthProvider>
+      <StatusBar barStyle={"dark-content"} />
     </ThemeProvider>
   );
 }

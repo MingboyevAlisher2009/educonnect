@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import {
-    Modal,
-    Pressable,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Modal,
+  Pressable,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 type RateSubmissionModalProps = {
@@ -30,7 +30,6 @@ const RateSubmissionModal: React.FC<RateSubmissionModalProps> = ({
     }
     setRating(0);
     setFeedback("");
-    onClose();
   };
 
   return (
@@ -40,10 +39,10 @@ const RateSubmissionModal: React.FC<RateSubmissionModalProps> = ({
         onPress={onClose}
       >
         <Pressable
-          className="w-[90%] bg-white dark:bg-neutral-900 rounded-xl p-6"
+          className="w-[90%] bg-white rounded-xl p-6"
           onPress={() => {}}
         >
-          <Text className="text-xl font-semibold mb-4 text-black dark:text-white">
+          <Text className="text-xl font-semibold mb-4 text-black">
             Rate Submission
           </Text>
 
@@ -67,7 +66,7 @@ const RateSubmissionModal: React.FC<RateSubmissionModalProps> = ({
             placeholder="Write your feedback..."
             placeholderTextColor="#A1A1AA"
             multiline
-            className="bg-gray-100 dark:bg-gray-800 text-black dark:text-white rounded-xl px-4 py-3 h-24"
+            className="bg-gray-100 text-black rounded-xl px-4 py-3 h-24"
             value={feedback}
             onChangeText={setFeedback}
           />
@@ -76,9 +75,9 @@ const RateSubmissionModal: React.FC<RateSubmissionModalProps> = ({
           <View className="flex-row justify-end mt-6 space-x-3">
             <TouchableOpacity
               onPress={onClose}
-              className="px-4 py-2 bg-gray-300 dark:bg-gray-700 rounded-lg"
+              className="px-4 py-2 bg-gray-300 rounded-lg"
             >
-              <Text className="text-black dark:text-white">Cancel</Text>
+              <Text className="text-black">Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={handleSubmit}

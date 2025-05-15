@@ -1,10 +1,10 @@
-import { supabase } from "@/lib/supabase";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
-  FlatList,
+  KeyboardAvoidingView,
   Modal,
-  Pressable,
+  Platform,
   Text,
   TextInput,
   TouchableOpacity,
@@ -13,12 +13,9 @@ import {
 
 type Props = {
   visible: boolean;
+  isSubmitting: boolean;
   onClose: () => void;
-  onCreate: (group: {
-    name: string;
-    description: string;
-    memberIds: string[];
-  }) => void;
+  onCreate: (group: { name: string; description: string }) => void;
 };
 
 type Student = {
@@ -28,39 +25,12 @@ type Student = {
 
 export default function CreateGroupModal({
   visible,
+  isSubmitting,
   onClose,
   onCreate,
 }: Props) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [students, setStudents] = useState<Student[]>([]);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [search, setSearch] = useState("");
-
-  useEffect(() => {
-    if (visible) {
-      fetchStudents();
-    }
-  }, [visible]);
-
-  const fetchStudents = async () => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("id, email")
-      .eq("condidate_role", "student");
-
-    if (error) {
-      Alert.alert("Error", "Failed to fetch students.");
-    } else {
-      setStudents(data || []);
-    }
-  };
-
-  const toggleSelect = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-  };
 
   const handleSubmit = () => {
     if (!name.trim()) {
@@ -68,90 +38,67 @@ export default function CreateGroupModal({
       return;
     }
 
-    onCreate({ name, description, memberIds: selectedIds });
+    onCreate({ name, description });
     setName("");
     setDescription("");
-    setSelectedIds([]);
   };
 
-  const filteredStudents = students.filter((s) =>
-    s.email.toLowerCase().includes(search.toLowerCase())
-  );
-
   return (
-    <Modal
-      animationType="slide"
-      transparent
-      visible={visible}
-      onRequestClose={onClose}
-    >
-      <View className="flex-1 justify-center items-center bg-black/40">
-        <View className="bg-black w-[90%] p-6 rounded-2xl max-h-[90%]">
-          <Text className="text-xl font-bold mb-4 text-white">
-            Create Group
+    <Modal visible={visible} transparent animationType="slide">
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        className="flex-1 justify-end bg-black/50"
+      >
+        <View className="bg-white rounded-t-3xl p-6">
+          <Text className="text-2xl font-bold text-center mb-6">
+            Create New Group
           </Text>
 
-          <TextInput
-            placeholder="Group Name"
-            value={name}
-            onChangeText={setName}
-            className="border border-white rounded-lg px-3 py-2 mb-3 text-white placeholder:text-white/50"
-          />
+          <View className="mb-4">
+            <Text className="text-gray-700 mb-1">Task Title</Text>
+            <TextInput
+              className="border border-gray-300 rounded-lg p-3 bg-white"
+              placeholder="Enter task title"
+              value={name}
+              onChangeText={setName}
+            />
+          </View>
 
-          <TextInput
-            placeholder="Group Description"
-            value={description}
-            onChangeText={setDescription}
-            className="border border-white rounded-lg px-3 py-2 mb-4 text-white placeholder:text-white/50"
-            multiline
-          />
+          <View className="mb-4">
+            <Text className="text-gray-700 mb-1">Description</Text>
+            <TextInput
+              className="border border-gray-300 h-24 rounded-lg p-3 bg-white"
+              placeholder="Enter task description"
+              value={description}
+              onChangeText={setDescription}
+              multiline
+              numberOfLines={4}
+              textAlignVertical="top"
+            />
+          </View>
 
-          <Text className="text-white mb-2">Add Members</Text>
-          <TextInput
-            placeholder="Search students..."
-            value={search}
-            onChangeText={setSearch}
-            className="border border-white rounded-lg px-3 py-2 mb-3 text-white placeholder:text-white/50"
-          />
-
-          <FlatList
-            data={filteredStudents}
-            keyExtractor={(item) => item.id}
-            style={{ maxHeight: 200 }}
-            renderItem={({ item }) => {
-              const selected = selectedIds.includes(item.id);
-              return (
-                <TouchableOpacity
-                  onPress={() => toggleSelect(item.id)}
-                  className={`p-2 rounded-lg mb-1 ${
-                    selected ? "bg-blue-600" : "bg-white/10"
-                  }`}
-                >
-                  <Text className="text-white">({item.email})</Text>
-                </TouchableOpacity>
-              );
-            }}
-            ListEmptyComponent={
-              <Text className="text-white/50">No students found</Text>
-            }
-          />
-
-          <View className="flex-row justify-end gap-4 mt-4">
-            <Pressable
+          <View className="flex-row justify-between">
+            <TouchableOpacity
+              className="flex-1 mr-2 py-3 border border-gray-300 rounded-lg items-center"
               onPress={onClose}
-              className="px-4 py-2 bg-gray-200 rounded-lg"
+              disabled={isSubmitting}
             >
-              <Text>Cancel</Text>
-            </Pressable>
-            <Pressable
+              <Text className="text-gray-600 font-medium">Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="flex-1 ml-2 py-3 bg-blue-500 rounded-lg items-center"
               onPress={handleSubmit}
-              className="px-4 py-2 bg-blue-600 rounded-lg"
+              disabled={isSubmitting}
             >
-              <Text className="text-white">Create</Text>
-            </Pressable>
+              {isSubmitting ? (
+                <ActivityIndicator color="white" size="small" />
+              ) : (
+                <Text className="text-white font-medium">Create Task</Text>
+              )}
+            </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

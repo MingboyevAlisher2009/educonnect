@@ -8,25 +8,55 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         tabBarShowLabel: false,
+        headerShown: false,
+        tabBarStyle: {
+          borderTopWidth: 1,
+          position: "absolute",
+          elevation: 0,
+          height: 40,
+          paddingBottom: 8,
+        },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title:
-            user?.condidate_role === "teacher"
-              ? "Teacher Dashboard"
-              : "Student Dashboard",
           tabBarIcon: ({ size, color }) => (
             <Feather name="home" size={size} color={color} />
           ),
         }}
       />
-
+      <Tabs.Screen
+        name="groups"
+        options={{
+          tabBarIcon: ({ size, color }) => (
+            <Feather name="users" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="notification"
+        options={{
+          tabBarIcon: ({ size, color }) => (
+            <Feather name="bell" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="submission"
+        options={{
+          tabBarIcon: ({ size, color }) => (
+            <Feather
+              name={user?.condidate_role === "teacher" ? "file-text" : "star"}
+              size={size}
+              color={color}
+            />
+          ),
+        }}
+      />
       <Tabs.Screen
         name="calendar"
         options={{
-          title: "Calendar",
           tabBarIcon: ({ size, color }) => (
             <Feather name="calendar" size={size} color={color} />
           ),
@@ -35,7 +65,6 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
           tabBarIcon: ({ size, color }) => (
             <Feather name="user" size={size} color={color} />
           ),
